@@ -18,9 +18,9 @@ import { InputLineTask } from './types/InputLineTask';
  * The maximum concurrency for the line queue.
  */
 const MAX_CONCURRENCY = 1;
-const startTime = Date.now();
-let endTime = Date.now();
-let operationsProcessed = 0;
+// const startTime = Date.now();
+// let endTime = Date.now();
+// let operationsProcessed = 0;
 
 /**
  * OperationBatches is an array of operation arrays. Each inner array represents a batch of operations.
@@ -74,9 +74,9 @@ export const processLine = async (
       await processAllOperationBatches(operationBatches);
 
     operationsOutcome.forEach((operationOutcome: OperationsOutcome) => {
-      operationsProcessed = operationsProcessed + operationOutcome.taxes.length;
+      // operationsProcessed = operationsProcessed + operationOutcome.taxes.length;
       printJSON(operationOutcome.taxes);
-      endTime = Date.now();
+      // endTime = Date.now();
     });
     return clearOperationBatches();
   } else {
@@ -110,9 +110,9 @@ readlineInterface.on('line', async (line: string) => {
 readlineInterface.on('close', () => {
   // The input stream has ended.
   // The line queue is drained to ensure that all lines are processed before the program exits.
-  console.log(
-    `Processed ${operationsProcessed} operations in ${endTime - startTime}ms`,
-  );
+  // console.log(
+  //   `Processed ${operationsProcessed} operations in ${endTime - startTime}ms`,
+  // );
 
   operationsProcessingQueue.drain(() => {
     process.exit(0);
