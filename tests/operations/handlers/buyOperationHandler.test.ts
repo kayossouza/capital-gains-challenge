@@ -106,30 +106,6 @@ describe('processBuyOperation', () => {
       ),
     ).toThrow();
   });
-
-  // it('should handle null operation', () => {
-  //   const operationsOutcome: OperationsOutcome = {
-  //     loss: 0,
-  //     weightedAveragePrice: 10,
-  //     shares: 100,
-  //     taxes: [{ tax: 0 }],
-  //   };
-  //   expect(() =>
-  //     buyOperationHandler.processBuyOperation(operationsOutcome, null),
-  //   ).toThrow();
-  // });
-
-  // it('should handle undefined operation', () => {
-  //   const operationsOutcome: OperationsOutcome = {
-  //     loss: 0,
-  //     weightedAveragePrice: 10,
-  //     shares: 100,
-  //     taxes: [{ tax: 0 }],
-  //   };
-  //   expect(() =>
-  //     buyOperationHandler.processBuyOperation(operationsOutcome, undefined),
-  //   ).toThrow();
-  // });
 });
 
 describe('calculateWeightedAveragePrice', () => {
