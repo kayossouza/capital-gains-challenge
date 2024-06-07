@@ -2,6 +2,8 @@ import { Operation } from '../../types/Operation';
 import { OperationsOutcome } from '../../types/OperationsOutcome';
 import { roundToTwoDecimalPlaces } from '../../utilities/numberUtilities';
 
+const ERROR_THRESHOLD = 3;
+
 /**
  * Handles a sell operation, updating the operations outcome.
  * @param operationsOutcome The operations outcome after the last operation.
@@ -15,18 +17,14 @@ import { roundToTwoDecimalPlaces } from '../../utilities/numberUtilities';
  * 2. Profit is made.
  * 3. No profit is made.
  */
-export const processSellOperation = (
-  operationsOutcome: OperationsOutcome,
-  operation: Operation,
-): OperationsOutcome => {
+export const processSellOperation = (operationsOutcome: OperationsOutcome, operation: Operation): OperationsOutcome => {
   const totalValue = calculateTotalValue(operation);
-  const profit = calculateProfit(
-    operation.quantity,
-    operation['unit-cost'],
-    operationsOutcome.weightedAveragePrice,
-  );
-
-  if (totalValue <= 20000) {
+  const profit = calculateProfit(operation.quantity, operation['unit-cost'], operationsOutcome.weightedAveragePrice);
+  if (isAboveErrorCounter(operationsOutcome)) {
+    return handleBlockAccount(operationsOutcome);
+  } else if (!hasEnoughShares(operation, operationsOutcome.shares)) {
+    return handleNotEnoughSharesCase(operationsOutcome);
+  } else if (totalValue <= 20000) {
     return handleNoTaxCase(operationsOutcome, operation, profit);
   } else if (profit > 0) {
     return handleProfitCase(operationsOutcome, operation, profit);
@@ -56,11 +54,7 @@ const calculateTotalValue = (operation: Operation): number => {
  * The total cost is the quantity of shares sold multiplied by the unit cost.
  * The total weighted cost is the quantity of shares sold multiplied by the weighted average price.
  */
-const calculateProfit = (
-  quantity: number,
-  unitCost: number,
-  weightedAverage: number,
-): number => {
+const calculateProfit = (quantity: number, unitCost: number, weightedAverage: number): number => {
   const totalCost = quantity * unitCost;
   const totalWeightedCost = quantity * weightedAverage;
   return totalCost - totalWeightedCost;
@@ -148,4 +142,26 @@ const handleNoProfitCase = (
     shares: operationsOutcome.shares - operation.quantity,
     taxes: [...operationsOutcome.taxes, { tax: 0 }],
   };
+};
+
+const handleNotEnoughSharesCase = (operationsOutcome: OperationsOutcome): OperationsOutcome => {
+  return {
+    ...operationsOutcome,
+    errorCounter: operationsOutcome.errorCounter + 1,
+    taxes: [...operationsOutcome.taxes, { error: "Can't sell more stocks than you have" }],
+  };
+};
+const handleBlockAccount = (operationsOutcome: OperationsOutcome): OperationsOutcome => {
+  return {
+    ...operationsOutcome,
+    taxes: [...operationsOutcome.taxes, { error: 'Your account is blocked' }],
+  };
+};
+
+const hasEnoughShares = (operation: Operation, shares: number): boolean => {
+  return operation.quantity <= shares;
+};
+
+const isAboveErrorCounter = (operationsOutcome: OperationsOutcome): boolean => {
+  return operationsOutcome.errorCounter + 1 > ERROR_THRESHOLD;
 };

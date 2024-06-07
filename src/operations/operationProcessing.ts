@@ -26,14 +26,13 @@ import { processSellOperation } from '../operations/handlers/sellOperationHandle
  * The outcome is returned as an object with these values.
  */
 
-export const evaluateOperationsOutcome = (
-  operations: Operation[],
-): OperationsOutcome => {
+export const evaluateOperationsOutcome = (operations: Operation[]): OperationsOutcome => {
   const initialOperationsOutcome: OperationsOutcome = {
     weightedAveragePrice: 0,
     shares: 0,
     loss: 0,
     taxes: [],
+    errorCounter: 0,
   };
 
   return operations.reduce((operationsOutcome, operation) => {
@@ -50,9 +49,7 @@ export const evaluateOperationsOutcome = (
  *
  * Promise.all is used to process all operation batches in parallel. This is more performant than processing them sequentially.
  */
-export const processAllOperationBatches = async (
-  operationBatches: OperationBatches,
-): Promise<OperationsOutcome[]> => {
+export const processAllOperationBatches = async (operationBatches: OperationBatches): Promise<OperationsOutcome[]> => {
   return Promise.all(operationBatches.map(evaluateOperationsOutcome));
 };
 

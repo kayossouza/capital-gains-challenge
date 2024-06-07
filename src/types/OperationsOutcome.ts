@@ -7,10 +7,12 @@
  */
 
 import { Tax } from './Tax';
+import { OperationError } from './OperationError';
 
 export type OperationsOutcome = {
   weightedAveragePrice: number;
   shares: number;
   loss: number;
-  taxes: Array<Tax>;
+  taxes: Array<Tax | OperationError>;
+  errorCounter: number;
 };
